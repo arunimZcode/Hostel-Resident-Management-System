@@ -62,7 +62,7 @@ ROOT_URLCONF = 'hostel_hms.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR.parent / 'hostel' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
