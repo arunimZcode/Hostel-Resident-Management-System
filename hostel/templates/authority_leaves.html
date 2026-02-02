@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Leave Requests</title></head>
+<body>
+    <h2>Leave Requests</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th><th>Student</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Action</th>
+        </tr>
+        {% for l in leaves %}
+        <tr>
+            <td>{{ l.id }}</td>
+            <td>{{ l.student.first_name }} {{ l.student.last_name }}</td>
+            <td>{{ l.start_date }}</td>
+            <td>{{ l.end_date }}</td>
+            <td>{{ l.reason }}</td>
+            <td>{{ l.approval_status }}</td>
+            <td>
+              {% if l.approval_status == 'Pending' %}
+                <a href="{% url 'approve_leave' l.id %}">Approve</a> |
+                <a href="{% url 'reject_leave' l.id %}">Reject</a>
+              {% else %}
+                {{ l.approval_status }}
+              {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

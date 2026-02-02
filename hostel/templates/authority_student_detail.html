@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Detail | HMS Authority</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #f8fafc;
+            font-family: "Segoe UI", sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin: 0 0 40px 0;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #38bdf8;
+        }
+
+        .nav-item {
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #38bdf8;
+            color: #0f172a;
+            transform: translateX(5px);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ef4444;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            background: #cbd5e1;
+            color: #334155;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-Pending {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .badge-Solved,
+        .badge-Approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-Rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2><i class="fa-solid fa-user-shield"></i> HMS Authority</h2>
+        <a href="{% url 'authority_home' %}" class="nav-item active"><i class="fa-solid fa-arrow-left"></i> Back to
+            Dashboard</a>
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Student Profile</h1>
+                <p style="color: #64748b; margin-top: 5px; display: flex; align-items: center; gap: 10px;">
+                    Viewing details for {{ student.first_name }} {{ student.last_name }} ({{ student.usn }})
+                    {% if current_status == 'IN' %}
+                    <span class="badge" style="background: #22c55e; color: white;">CURRENTLY IN</span>
+                    {% elif current_status == 'OUT' %}
+                    <span class="badge" style="background: #ef4444; color: white;">CURRENTLY OUT</span>
+                    {% else %}
+                    <span class="badge" style="background: #94a3b8; color: white;">NO LOGS</span>
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{% url 'authority_home' %}" class="back-btn"><i class="fa-solid fa-xmark"></i> Close View</a>
+        </div>
+
+        <div class="grid-container">
+            <!-- PERSONAL INFO -->
+            <div class="card">
+                <h3><i class="fa-solid fa-id-card"></i> Personal Details</h3>
+                <div class="info-row"><span class="info-label">Full Name</span> <span class="info-value">
+                        {{ student.first_name }} {{ student.last_name }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">USN</span> <span class="info-value">
+                        {{ student.usn }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">DOB</span> <span class="info-value">
+                        {{ student.dob }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Gender</span> <span class="info-value">
+                        {{ student.gender }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Contact</span> <span class="info-value">
+                        {{ student.phone }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Address</span> <span class="info-value">
+                        {{ student.address }}
+                    </span></div>
+            </div>
+
+            <!-- ACADEMIC & HOSTEL -->
+            <div class="card">
+                <h3><i class="fa-solid fa-graduation-cap"></i> Academic & Hostel</h3>
+                <div class="info-row"><span class="info-label">Department</span> <span class="info-value">
+                        {{ student.department.department_name }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Hostel</span> <span class="info-value">
+                        {{ student.room.hostel.hostel_name }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Room Number</span> <span class="info-value">
+                        {{ student.room.room_number }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Room Type</span> <span class="info-value">
+                        {{ student.room.room_type }}
+                    </span></div>
+
+                <h3 style="margin-top: 30px;"><i class="fa-solid fa-users"></i> Guardian Info</h3>
+                <div class="info-row"><span class="info-label">Name</span> <span class="info-value">
+                        {{ student.guardian.first_name }} {{ student.guardian.last_name }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Relation</span> <span class="info-value">
+                        {{ student.guardian.relation }}
+                    </span></div>
+                <div class="info-row"><span class="info-label">Contact</span> <span class="info-value">
+                        {{ student.guardian.contact_number }}
+                    </span></div>
+            </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="grid-container">
+            <div class="card">
+                <h3><i class="fa-solid fa-chart-pie"></i> Complaint Analysis</h3>
+                <div class="chart-container">
+                    <canvas id="complaintChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-chart-bar"></i> Leave Request Analysis</h3>
+                <div class="chart-container">
+                    <canvas id="leaveChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY TABLES -->
+        <div class="table-container">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Complaint History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Facility</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in complaints %}
+                    <tr>
+                        <td>
+                            {{ c.complaint_date|date:"Y-m-d" }}
+                        </td>
+                        <td>
+                            {{ c.facility.name }}
+                        </td>
+                        <td>
+                            {{ c.description }}
+                        </td>
+                        <td><span class="badge badge-{{ c.status }}">
+                                {{ c.status }}
+                            </span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No complaints recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h3><i class="fa-solid fa-person-walking-luggage"></i> Leave Request History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in leaves %}
+                    <tr>
+                        <td>
+                            {{ l.start_date }}
+                        </td>
+                        <td>
+                            {{ l.end_date }}
+                        </td>
+                        <td>
+                            {{ l.reason }}
+                        </td>
+                        <td><span class="badge badge-{{ l.approval_status }}">
+                                {{ l.approval_status }}
+                            </span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No leaves recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Movement History (Last 10)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            {{ log.timestamp|date:"M d, Y H:i" }}
+                        </td>
+                        <td>
+                            {% if log.event_type == 'IN' %}
+                            <span class="badge badge-Approved">IN</span>
+                            {% else %}
+                            <span class="badge badge-Rejected">OUT</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ log.purpose }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No movement history recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const complaintCtx = document.getElementById('complaintChart').getContext('2d');
+        new Chart(complaintCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Solved', 'Pending'],
+                datasets: [{
+                    data: [{{ complaint_stats.solved }}, {{ complaint_stats.pending }}],
+            backgroundColor: ['#22c55e', '#ef4444'],
+            borderWidth: 0
+        }]
+            },
+            options: { cutout: '70%', responsive: true, maintainAspectRatio: false }
+        });
+
+        const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+        new Chart(leaveCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Rejected', 'Pending'],
+                datasets: [{
+                    label: 'Requests',
+                    data: [{{ leave_stats.approved }}, {{ leave_stats.rejected }}, {{ leave_stats.pending }}],
+            backgroundColor: ['#22c55e', '#ef4444', '#eab308']
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } }, responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Complaint List</title>
+</head>
+
+<body>
+    <h2>All Complaints</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Student</th>
+            <th>Facility</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        {% for c in complaints %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.student.first_name }} {{ c.student.last_name }}</td>
+            <td>{{ c.facility.name }}</td>
+            <td>{{ c.description }}</td>
+            <td>{{ c.status }}</td>
+            <td>
+                {% if c.status != 'Solved' %}
+                <a href="{% url 'resolve_complaint' c.id %}">Mark Solved</a>
+                {% else %}
+                Solved
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

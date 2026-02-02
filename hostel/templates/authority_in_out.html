@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>In/Out Status | HMS Authority</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { margin: 0; background: #f8fafc; font-family: "Segoe UI", sans-serif; display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; }
+        .sidebar h2 { margin: 0 0 40px 0; font-size: 22px; display: flex; align-items: center; gap: 12px; color: #38bdf8; }
+        .nav-item { padding: 14px 18px; margin-bottom: 8px; cursor: pointer; border-radius: 10px; display: flex; align-items: center; gap: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; transition: all 0.3s; }
+        .nav-item:hover, .nav-item.active { background: #38bdf8; color: #0f172a; transform: translateX(5px); }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { color: #1e293b; margin: 0; font-size: 28px; }
+        
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        .card-header h3 { margin: 0; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+        .count-badge { padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; color: white; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        th { color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+        tr:last-child td { border-bottom: none; }
+        
+        .student-name { font-weight: 600; color: #334155; }
+        .student-meta { font-size: 11px; color: #94a3b8; }
+        .time-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; color: #475569; font-size: 11px; font-weight: 600; }
+        
+        /* Specifics */
+        .inside-header i { color: #22c55e; }
+        .outside-header i { color: #ef4444; }
+        .count-green { background: #22c55e; }
+        .count-red { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2><i class="fa-solid fa-user-shield"></i> HMS Authority</h2>
+        <a href="{% url 'authority_home' %}" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <div class="nav-item active"><i class="fa-solid fa-door-open"></i> In/Out Status</div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>In/Out Status Monitor</h1>
+                <p style="color: #64748b; margin-top: 5px;">Real-time tracking of student presence.</p>
+            </div>
+            <a href="{% url 'authority_home' %}" style="text-decoration: none; color: #64748b; font-weight: 500;"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        <div class="status-grid">
+            <!-- INSIDE LIST -->
+            <div class="card">
+                <div class="card-header inside-header">
+                    <h3><i class="fa-solid fa-house-user"></i> Students Inside</h3>
+                    <span class="count-badge count-green">{{ inside_count }}</span>
+                </div>
+                <div style="max-height: 600px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Room</th>
+                                <th>Last Check-In</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in inside_students %}
+                            <tr>
+                                <td>
+                                    <div class="student-name">{{ s.first_name }} {{ s.last_name }}</div>
+                                    <div class="student-meta">{{ s.usn }}</div>
+                                </td>
+                                <td>{{ s.room.hostel.hostel_name }} - {{ s.room.room_number }}</td>
+                                <td>
+                                    {% if s.last_in_time %}
+                                    <span class="time-badge">{{ s.last_in_time|date:"M d, H:i" }}</span>
+                                    {% else %}
+                                    <span class="time-badge" style="background: #e2e8f0;">No Recent log</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" style="text-align: center; color: #94a3b8;">No students inside? (Unlikely)</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- OUTSIDE LIST -->
+            <div class="card">
+                <div class="card-header outside-header">
+                    <h3><i class="fa-solid fa-person-walking-arrow-right"></i> Students Outside</h3>
+                    <span class="count-badge count-red">{{ outside_count }}</span>
+                </div>
+                 <div style="max-height: 600px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Since</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in outside_students %}
+                            <tr>
+                                <td>
+                                    <div class="student-name">{{ s.first_name }} {{ s.last_name }}</div>
+                                    <div class="student-meta">{{ s.usn }}</div>
+                                </td>
+                                <td>
+                                    <span class="time-badge" style="background: #fee2e2; color: #b91c1c;">{{ s.last_out_time|date:"M d, H:i" }}</span>
+                                </td>
+                                <td>{{ s.out_purpose }}</td>
+                            </tr>
+                            {% empty %}
+                             <tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 20px;">All students are inside.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
