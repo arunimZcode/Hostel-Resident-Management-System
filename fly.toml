@@ -1,0 +1,21 @@
+[app]
+  # change this to a unique app name when you create the Fly app
+  name = "hostel-hms"
+  kill_signal = "SIGINT"
+  kill_timeout = 5
+
+[build]
+  image = "Dockerfile"
+
+[env]
+  PORT = "8000"
+
+[[services]]
+  internal_port = 8000
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
