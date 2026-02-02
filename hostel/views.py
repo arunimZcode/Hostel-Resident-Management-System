@@ -446,14 +446,11 @@ def watchman_view(request):
     for student in all_students:
         last_log = InOutRecord.objects.filter(student=student).order_by('-timestamp').first()
         
-        if last_log and last_log.event_type == 'OUT':
-            out_students.append(last_log)
-        else:
-            if last_log and last_log.event_type == 'IN':
-                in_students.append(last_log)
+        if last_log:
+            if last_log.event_type == 'OUT':
+                out_students.append(last_log)
             else:
-                # If no log exists, student is considered inside
-                in_students.append(None)
+                in_students.append(last_log)
     
     # Combine: OUT students first, then IN students
     recent_logs = out_students + in_students
